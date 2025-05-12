@@ -30,6 +30,9 @@ describe("CheckOut products", () => {
     HomePage.clickLoginAndRegister();
     LoginPage.login(userData.valid1);
     LoginPage.navigateToHomePage();
+    HomePage.clickOnWishList();
+    WishlistPage.removeProductsWithCurrentDate();
+    LoginPage.navigateToHomePage();
     HomePage.clickOnRandomProduct();
     ProductPage.verifyRandomProductDetails();
     ProductPage.addProductToWishlist();

@@ -29,14 +29,18 @@ class WishlistPage {
   }
 
   static removeProductsWithCurrentDate() {
-    cy.get(webLocators.table.allCells).each((cell) => {
-      cy.wrap(cell)
-        .invoke("text")
-        .then((text) => {
-          if (text.trim() === getDate()) {
-            cy.wrap(cell).parent().find("td").eq(5).find("a").eq(1).click();
-          }
+    cy.get("body").then((body) => {
+      if (body.find(webLocators.table.allCells).length > 0) {
+        cy.get(webLocators.table.allCells).each((cell) => {
+          cy.wrap(cell)
+            .invoke("text")
+            .then((text) => {
+              if (text.trim() === getDate()) {
+                cy.wrap(cell).parent().find("td").eq(5).find("a").eq(1).click();
+              }
+            });
         });
+      }
     });
   }
 
