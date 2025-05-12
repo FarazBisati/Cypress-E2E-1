@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "lib": ["es6", "dom"],
+    "checkJs": true,
+    "types": ["cypress"]
+  },
+  "include": ["cypress/**/*.js", "**/*.js"]
+}

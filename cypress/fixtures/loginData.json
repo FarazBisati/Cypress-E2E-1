@@ -1,0 +1,33 @@
+{
+  "valid1": {
+    "username": "killerMiller",
+    "password": "teest@123456"
+  },
+
+  "valid2": {
+    "username": "KILLERmILLER",
+    "password": "teest@123456"
+  },
+
+  "valid3": {
+    "username": "killerMiller",
+    "password": "teest@123456"
+  },
+
+  "invalid1": {
+    "username": "test234",
+    "password": "teest@123456"
+  },
+  "invalid2": {
+    "username": "killerMiller",
+    "password": "teesetyt@123456"
+  },
+  "invalid3": {
+    "username": "",
+    "password": ""
+  },
+  "invalid4": {
+    "username": " killerMiller",
+    "password": "teest@123456 "
+  }
+}
