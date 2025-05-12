@@ -11,5 +11,5 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
-          commad: npm run test:TestLogin,
+          command: npm run test:TestLogin
           browser: chrome
