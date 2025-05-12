@@ -14,6 +14,9 @@ describe("CheckOut products", () => {
     });
   });
   it("Checkout Products without login", () => {
+    HomePage.goToCart();
+    CartPage.removeAllProductsFromCart();
+    LoginPage.navigateToHomePage();
     HomePage.clickOnRandomProduct();
     ProductPage.verifyRandomProductDetails();
     ProductPage.addProductToCart();
