@@ -1,4 +1,4 @@
-name: Regression-Test
+name: ChromeBrowser
 on: push
 
 jobs:

@@ -1,4 +1,4 @@
-name: Regression-Test
+name: Firefox Browser
 on: push
 
 jobs:
