@@ -13,19 +13,19 @@ describe("CheckOut products", () => {
       userData = data;
     });
   });
-  // it("Checkout Products without login", () => {
-  //   HomePage.clickOnRandomProduct();
-  //   ProductPage.verifyRandomProductDetails();
-  //   ProductPage.addProductToCart();
-  //   CartPage.verifyLatestProductInCart();
-  //   CartPage.setShippingDetails();
-  //   CartPage.checkTotals();
-  //   CartPage.clickCheckOut();
-  //   LoginPage.clickGuestCheckOut();
-  //   CartPage.fillGuestPersonalDeatils();
-  //   CheckOutConfirmationPage.verifyItemsAndPlaceOrder();
-  //   CheckOutConfirmationPage.clickCheckOut();
-  // });
+  it("Checkout Products without login", () => {
+    HomePage.clickOnRandomProduct();
+    ProductPage.verifyRandomProductDetails();
+    ProductPage.addProductToCart();
+    CartPage.verifyLatestProductInCart();
+    CartPage.setShippingDetails();
+    CartPage.checkTotals();
+    CartPage.clickCheckOut();
+    LoginPage.clickGuestCheckOut();
+    CartPage.fillGuestPersonalDeatils();
+    CheckOutConfirmationPage.verifyItemsAndPlaceOrder();
+    CheckOutConfirmationPage.clickCheckOut();
+  });
   it("CheckOut Products from the wishList with Login ", () => {
     HomePage.clickLoginAndRegister();
     LoginPage.login(userData.valid1);
