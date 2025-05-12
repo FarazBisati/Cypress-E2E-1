@@ -12,6 +12,7 @@ let webLocators = {
   table: {
     productLastRow: ".product-list>.table-bordered>tbody>tr:last-of-type",
     priceRows: "#totals_table>tbody>tr>td:last-of-type",
+    removeItems: ".product-list tr td a[href*='remove']",
   },
   dropdown: {
     shippingCountry: "#estimate_country",
@@ -35,6 +36,18 @@ let webLocators = {
 };
 
 class CartPage {
+  static removeAllProductsFromCart() {
+    cy.get("body").then((body) => {
+      if (body.find(webLocators.table.removeItems).length > 0) {
+        cy.get(webLocators.table.removeItems)
+          .should("be.visible")
+          .eq(0)
+          .click();
+        CartPage.removeAllProductsFromCart();
+      }
+    });
+  }
+
   static verifyLatestProductInCart() {
     cy.get(webLocators.table.productLastRow).within(() => {
       cy.get("td").eq(1).should("include.text", getRandomProductName());
@@ -57,6 +70,9 @@ class CartPage {
     cy.get(webLocators.table.priceRows)
       .should("exist")
       .and("be.visible")
+      .and((row) => {
+        expect(row.text().trim()).to.not.equal("");
+      })
       .each((item) => {
         checkOutPrices.push(Number(item.text().replace("$", "").trim()));
         cy.log(item.text().replace("$", "").trim());
@@ -88,9 +104,9 @@ class CartPage {
     cy.get(webLocators.inputbox.firstName).clear().type(generateRandomString());
     cy.get(webLocators.inputbox.lastName).clear().type(generateRandomString());
     cy.get(webLocators.inputbox.email).clear().type(generateRandomEmail());
+    cy.get(webLocators.dropdown.guestCountry).select(country);
     cy.get(webLocators.inputbox.address1).clear().type(generateRandomString());
     cy.get(webLocators.inputbox.city).clear().type(generateRandomString());
-    cy.get(webLocators.dropdown.guestCountry).select(country);
     cy.get(webLocators.inputbox.guestZipcode)
       .clear()
       .type(generateRandomNumber());

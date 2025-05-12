@@ -25,6 +25,9 @@ class CheckOutConfirmationPage {
     cy.get(webLocators.table.amountTotals)
       .should("exist")
       .and("be.visible")
+      .and((row) => {
+        expect(row.text().trim()).to.not.equal("");
+      })
       .each((item) => {
         checkOutPrices.push(Number(item.text().replace("$", "").trim()));
         cy.log(item.text().replace("$", "").trim());

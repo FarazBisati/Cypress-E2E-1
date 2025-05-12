@@ -7,6 +7,7 @@ let webLocators = {
     socialMedialogo: ".social_icons>a",
     productName: ".list-inline .prdocutname",
     myAccountOptions: "#customer_menu_top>li",
+    cart: ".block_7",
   },
   labels: {
     setCurrency: ".block_6 >ul>li:first-of-type span",
@@ -173,6 +174,10 @@ class HomePage {
       .then(() => {
         expect(compareNames(itemNames)).to.deep.equal(itemNames);
       });
+  }
+
+  static goToCart() {
+    cy.get(webLocators.link.cart).click();
   }
 }
 
