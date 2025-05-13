@@ -1,0 +1,48 @@
+name: Serial Test
+on: push
+
+jobs:
+  serial-run:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        with:
+          browser: chrome
+          config: reporter=cypress-mochawesome-reporter,reporterOptions.reportDir=cypress/reports/chrome
+
+      - name: Test Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chrome Browser Test Report
+          path: cypress/reports/chrome
+
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        with:
+          browser: firefox
+          config: reporter=cypress-mochawesome-reporter,reporterOptions.reportDir=cypress/reports/firefox
+
+      - name: Test Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: FireFox Browser Test Report
+          path: cypress/reports/firefox
+
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        with:
+          browser: edge
+          config: reporter=cypress-mochawesome-reporter,reporterOptions.reportDir=cypress/reports/edge
+
+      - name: Test Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Edge Browser Test Report
+          path: cypress/reports/edge
