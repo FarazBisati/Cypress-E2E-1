@@ -21,7 +21,6 @@ on:
         description: "Test spec pattern (glob)"
         required: false
         default: "cypress/e2e/**/*.cy.js"
-
 jobs:
   run-serial:
     if: ${{inputs.run_mode=='serial'}}
@@ -37,21 +36,17 @@ jobs:
           npx cypress install
 
       - name: Run Cypress Tests Serially
+        if: always()
         run: |
           IFS=',' read -ra BROWSER_LIST <<< "${{ inputs.browsers }}"
           for browser in "${BROWSER_LIST[@]}"; do
-            REPORT_DIR="cypress/reports/html/$browser"
-            mkdir -p "$REPORT_DIR"
-            npx cypress run --browser "$browser" --spec "${{ inputs.spec_pattern }}" --reporter mochawesome --reporter-options reportDir=$REPORT_DIR,reportFilename=report-$browser.json
-            ls -R cypress/reports/html/$browser  # Debugging line
+            echo "Running Cypress tests on $browser"
+            npx cypress run --browser "$browser" --spec "${{ inputs.spec_pattern }}"
           done
 
-      - name: Merge Reports
-        run: |
-          mochawesome-merge cypress/reports/html/*/*.json > cypress/reports/html/merged-report.json
-
-      - name: Upload Merged Report
+      - name: Test Report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Merged Report
-          path: cypress/reports/html/merged-report.json
+          name: Browser Test Report
+          path: cypress/reports/html
