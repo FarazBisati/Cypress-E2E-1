@@ -21,6 +21,7 @@ on:
         description: "Test spec pattern (glob)"
         required: false
         default: "cypress/e2e/**/*.cy.js"
+
 jobs:
   run-serial:
     if: ${{inputs.run_mode=='serial'}}
@@ -42,10 +43,11 @@ jobs:
           for browser in "${BROWSER_LIST[@]}"; do
             REPORT_DIR="cypress/reports/html/$browser"
             mkdir -p "$REPORT_DIR"
+            # Ensure mochawesome options and report generation is correct
             npx cypress run --browser "$browser" --spec "${{ inputs.spec_pattern }}" --reporter mochawesome --reporter-options reportDir=$REPORT_DIR,reportFilename=report-$browser.json
           done
 
-      - name: Test Report
+      - name: Upload Test Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
