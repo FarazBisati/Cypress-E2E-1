@@ -32,7 +32,7 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
-          browser: ${{ inputs.browsers }}
+          browser: ${{ fromJSON(format('"{}"', inputs.browsers)) }}
           spec: ${{ inputs.spec_pattern }}
 
       - name: Test Report
