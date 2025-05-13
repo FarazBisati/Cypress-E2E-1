@@ -14,7 +14,7 @@ jobs:
           browser: chrome
           config: reporter=cypress-mochawesome-reporter,reporterOptions.reportDir=cypress/reports/chrome
 
-      - name: Test Report
+      - name: Uplaod chrome Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -27,7 +27,7 @@ jobs:
           browser: firefox
           config: reporter=cypress-mochawesome-reporter,reporterOptions.reportDir=cypress/reports/firefox
 
-      - name: Test Report
+      - name: Uplaod Firefox Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -40,7 +40,7 @@ jobs:
           browser: edge
           config: reporter=cypress-mochawesome-reporter,reporterOptions.reportDir=cypress/reports/edge
 
-      - name: Test Report
+      - name: Uplaod Edge Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
