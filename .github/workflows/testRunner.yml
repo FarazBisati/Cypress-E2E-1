@@ -30,15 +30,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Cypress run
-        uses: cypress-io/github-action@v6
-
-      - name: Install Firefox
-        run: |
-          sudo apt update
-          sudo apt install -y firefox
-
-      - name: Run Tests
+      - name: Run Cypress Tests Serially
         run: |
           IFS=',' read -ra BROWSER_LIST <<< "${{ inputs.browsers }}"
           for browser in "${BROWSER_LIST[@]}"; do
