@@ -40,10 +40,9 @@ jobs:
         run: |
           IFS=',' read -ra BROWSER_LIST <<< "${{ inputs.browsers }}"
           for browser in "${BROWSER_LIST[@]}"; do
-            echo "Running Cypress tests on $browser"
             REPORT_DIR="cypress/reports/html/$browser"
             mkdir -p "$REPORT_DIR"
-            npx cypress run --browser "$browser" --spec "${{ inputs.spec_pattern }}" --reporter mochawesome --reporter-options reportDir=$REPORT_DIR,reportFilename=report-$browser
+            npx cypress run --browser "$browser" --spec "${{ inputs.spec_pattern }}" --reporter mochawesome --reporter-options reportDir=$REPORT_DIR,reportFilename=report-$browser.json
           done
 
       - name: Test Report
@@ -51,4 +50,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Browser Test Report
-          path: cypress/reports/html/*
+          path: cypress/reports/html/*/*.json
+
+  run-parallel:
+    if: ${{inputs.run_mode=='parallel'}}
+    runs-on: ubuntu-24.04
