@@ -23,3 +23,19 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+import Homepage from "../pages/homePage";
+import LoginPage from "../pages/loginPage";
+
+Cypress.Commands.add("login", (data) => {
+  cy.session(
+    [data],
+    () => {
+      cy.visit("/");
+      Homepage.clickLoginAndRegister();
+      LoginPage.login(data.valid1);
+    },
+    {
+      cacheAcrossSpecs: true,
+    }
+  );
+});

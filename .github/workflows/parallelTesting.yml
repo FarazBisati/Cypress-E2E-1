@@ -1,0 +1,56 @@
+name: Parallel Test
+on: push
+
+jobs:
+  chrome-run:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        with:
+          browser: chrome
+      - name: Test Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chorme Browser Test Report
+          path: cypress/reports/html
+
+  firefox-run:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        with:
+          browser: firefox
+
+      - name: Test Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: FireFox Browser Test Report
+          path: cypress/reports/html
+
+  edge-run:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        with:
+          browser: edge
+
+      - name: Test Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Edge Browser Test Report
+          path: cypress/reports/html

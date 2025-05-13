@@ -1,0 +1,19 @@
+name: Regression-Test
+on: push
+
+jobs:
+  cypress-run:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+
+      - name: Test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Regression Test Report
+          path: cypress/reports/html

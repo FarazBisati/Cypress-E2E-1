@@ -8,12 +8,12 @@ import WishlistPage from "../../pages/wishListPage";
 describe("CheckOut products", () => {
   let userData;
   beforeEach(() => {
-    cy.visit("/");
     cy.fixture("loginData").then((data) => {
       userData = data;
     });
   });
   it("Checkout Products without login", () => {
+    cy.visit("/");
     HomePage.goToCart();
     CartPage.removeAllProductsFromCart();
     LoginPage.navigateToHomePage();
@@ -30,9 +30,8 @@ describe("CheckOut products", () => {
     CheckOutConfirmationPage.clickCheckOut();
   });
   it("CheckOut Products from the wishList with Login ", () => {
-    HomePage.clickLoginAndRegister();
-    LoginPage.login(userData.valid1);
-    LoginPage.navigateToHomePage();
+    cy.login(userData);
+    cy.visit("/");
     HomePage.clickOnWishList();
     WishlistPage.removeProductsWithCurrentDate();
     HomePage.goToCart();

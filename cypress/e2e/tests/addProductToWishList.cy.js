@@ -15,10 +15,8 @@ describe("Add product to wishlist", () => {
     WishlistPage.removeProductsWithCurrentDate();
   });
   it("Verify if the correct random product is added to wishlist", () => {
+    cy.login(userData);
     cy.visit("/");
-    Homepage.clickLoginAndRegister();
-    LoginPage.login(userData.valid1);
-    LoginPage.navigateToHomePage();
     Homepage.clickOnRandomProduct();
     ProductPage.verifyRandomProductDetails();
     ProductPage.addProductToWishlist();
