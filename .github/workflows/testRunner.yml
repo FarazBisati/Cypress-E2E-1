@@ -31,12 +31,14 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run Cypress Tests Serially
-        run: |
-          IFS=',' read -ra BROWSER_LIST <<< "${{ inputs.browsers }}"
-          for browser in "${BROWSER_LIST[@]}"; do
-            echo "Running Cypress tests on $browser"
-            npx cypress run --browser "$browser" --spec "${{ inputs.spec_pattern }}"
-          done
+        uses: cypress-io/github-action@v6
+        with:
+          run: |
+            IFS=',' read -ra BROWSER_LIST <<< "${{ inputs.browsers }}"
+            for browser in "${BROWSER_LIST[@]}"; do
+              echo "Running Cypress tests on $browser"
+              npx cypress run --browser "$browser" --spec "${{ inputs.spec_pattern }}"
+            done
 
       - name: Test Report
         if: always()
