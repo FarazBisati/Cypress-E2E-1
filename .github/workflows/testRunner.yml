@@ -52,7 +52,3 @@ jobs:
         with:
           name: Browser Test Report
           path: cypress/reports/html/*
-
-  parallel-run:
-    if: ${{inputs.run_mode=='serial'}}
-    runs-on: ubuntu-24.04
