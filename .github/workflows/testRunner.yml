@@ -1,0 +1,43 @@
+name: Cypress Test Runner
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_mode:
+        description: "Run tests in serial or parallel mode"
+        required: true
+        type: choice
+        default: "serial"
+        options:
+          - serial
+          - parallel
+
+      browsers:
+        description: "Comma-separated list of browsers (chrome, firefox, edge)"
+        required: false
+        default: "chrome"
+
+      spec_pattern:
+        description: "Test spec pattern (glob)"
+        required: false
+        default: "cypress/e2e/**/*.cy.js"
+jobs:
+  run-serial:
+    if: ${{inputs.run_mode=='serial'}}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        with:
+          browser: ${{ fromJSON(format('"{}"', inputs.browsers)) }}
+          spec: ${{ inputs.spec_pattern }}
+
+      - name: Test Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chorme Browser Test Report
+          path: cypress/reports/html
