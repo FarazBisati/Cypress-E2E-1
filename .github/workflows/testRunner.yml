@@ -13,7 +13,7 @@ on:
           - parallel
 
       browsers:
-        description: "Comma-separated list of browsers (chrome, firefox, edge)"
+        description: "Comma-separated list of browsers (chrome,firefox,edge)"
         required: false
         default: "chrome"
 
@@ -36,19 +36,14 @@ jobs:
           npx cypress install
 
       - name: Run Cypress Tests Serially
+        if: always()
         run: |
-          VALID_BROWSERS=("chrome" "firefox" "edge")
-
           IFS=',' read -ra BROWSER_LIST <<< "${{ inputs.browsers }}"
-
           for browser in "${BROWSER_LIST[@]}"; do
-            if [[ " ${VALID_BROWSERS[@]} " =~ " ${browser} " ]]; then
-              echo "Running Cypress tests on $browser"
-              npx cypress run --browser "$browser" --spec "${{ inputs.spec_pattern }}"
-            else
-              echo "Invalid browser: $browser. Please use one of the following: chrome, firefox, edge."
-              exit 1
-            fi
+            echo "Running Cypress tests on $browser"
+            REPORT_DIR="cypress/reports/html/$browser"
+            mkdir -p "$REPORT_DIR"
+            npx cypress run --browser "$browser" --spec "${{ inputs.spec_pattern }}" --reporter mochawesome --reporter-options reportDir=$REPORT_DIR
           done
 
       - name: Test Report
@@ -56,4 +51,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Browser Test Report
-          path: cypress/reports/html
+          path: cypress/reports/html/*
