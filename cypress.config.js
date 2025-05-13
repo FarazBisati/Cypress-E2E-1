@@ -11,7 +11,7 @@ module.exports = defineConfig({
     baseUrl: "https://automationteststore.com/",
     video: true,
     videoCompression: 32,
-    videosFolder: "cypress/videos",
+    videosFolder: "cypress/reports/videos",
     screenshotOnRunFailure: true,
     setupNodeEvents(on, config) {
       require("cypress-mochawesome-reporter/plugin")(on);

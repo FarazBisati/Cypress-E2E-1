@@ -14,6 +14,7 @@ jobs:
           command: npm run test:TestLogin
 
       - name: Test Report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: Electron Test Report
