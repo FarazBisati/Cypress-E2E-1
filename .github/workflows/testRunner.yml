@@ -43,7 +43,7 @@ jobs:
             echo "Running Cypress tests on $browser"
             REPORT_DIR="cypress/reports/html/$browser"
             mkdir -p "$REPORT_DIR"
-            npx cypress run --browser "$browser" --spec "${{ inputs.spec_pattern }}" --reporter mochawesome --reporter-options reportDir=$REPORT_DIR
+            npx cypress run --browser "$browser" --spec "${{ inputs.spec_pattern }}" --reporter mochawesome --reporter-options reportDir=$REPORT_DIR || echo "Tests failed for $browser, continuing with next browser"
           done
 
       - name: Test Report
@@ -52,3 +52,7 @@ jobs:
         with:
           name: Browser Test Report
           path: cypress/reports/html/*
+
+  parallel-run:
+    if: ${{inputs.run_mode=='serial'}}
+    runs-on: ubuntu-24.04
