@@ -35,20 +35,28 @@ jobs:
           npm ci
           npx cypress install
 
+      - name: Install Reporting Tools
+        run: |
+          npm install -g mochawesome-merge mochawesome-report-generator
+
       - name: Run Cypress Tests Serially
         if: always()
         run: |
           IFS=',' read -ra BROWSER_LIST <<< "${{ inputs.browsers }}"
           for browser in "${BROWSER_LIST[@]}"; do
-          echo "Running Cypress tests on $browser"
-             REPORT_DIR="cypress/reports/html/$browser"
-             mkdir -p "$REPORT_DIR"  # Create a unique directory for each browser
-             npx cypress run --browser "$browser" --spec "${{ inputs.spec_pattern }}" --reporter mochawesome --reporter-options reportDir=$REPORT_DIR,reportFilename=report-$browser.json || echo "Tests failed for $browser, continuing with next browser"
+            echo "Running Cypress tests on $browser"
+            REPORT_DIR="cypress/reports/html/$browser"
+            mkdir -p "$REPORT_DIR"
+            npx cypress run --browser "$browser" --spec "${{ inputs.spec_pattern }}" --reporter mochawesome --reporter-options reportDir=$REPORT_DIR,reportFilename=report-$browser.json || echo "Tests failed for $browser, continuing with next browser"
           done
 
-      - name: Test Report
-        if: always()
+      - name: Merge Reports and Generate HTML
+        run: |
+          npx mochawesome-merge cypress/reports/html/*/*.json > cypress/reports/html/merged-report.json
+          npx marge cypress/reports/html/merged-report.json --reportDir cypress/reports/html --reportFilename merged-report.html
+
+      - name: Upload Final Report
         uses: actions/upload-artifact@v4
         with:
-          name: Browser Test Report
+          name: Final Merged Report
           path: cypress/reports/html
