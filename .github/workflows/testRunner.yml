@@ -39,10 +39,12 @@ jobs:
         if: always()
         run: |
           IFS=',' read -ra BROWSER_LIST <<< "${{ inputs.browsers }}"
-            for browser in "${BROWSER_LIST[@]}"; do
-            echo "Running Cypress tests on $browser"
-            npx cypress run --browser "$browser" --spec "${{ inputs.spec_pattern }}" || echo "Tests failed for $browser, continuing with next browser"
-            done
+          for browser in "${BROWSER_LIST[@]}"; do
+          echo "Running Cypress tests on $browser"
+             REPORT_DIR="cypress/reports/html/$browser"
+             mkdir -p "$REPORT_DIR"  # Create a unique directory for each browser
+             npx cypress run --browser "$browser" --spec "${{ inputs.spec_pattern }}" --reporter mochawesome --reporter-options reportDir=$REPORT_DIR,reportFilename=report-$browser.json || echo "Tests failed for $browser, continuing with next browser"
+          done
 
       - name: Test Report
         if: always()
