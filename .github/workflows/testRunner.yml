@@ -25,6 +25,9 @@ jobs:
   run-serial:
     if: ${{inputs.run_mode=='serial'}}
     runs-on: ubuntu-24.04
+    strategy:
+      matrix: browser:[${{ inputs.browsers }}]
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,7 +35,7 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
-          browser: ${{ fromJSON(format('"{}"', inputs.browsers)) }}
+          browser: ${{ matrix.browser }}
           spec: ${{ inputs.spec_pattern }}
 
       - name: Test Report
