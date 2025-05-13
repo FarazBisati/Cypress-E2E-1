@@ -43,7 +43,7 @@ jobs:
             echo "Running Cypress tests on $browser"
             REPORT_DIR="cypress/reports/html/$browser"
             mkdir -p "$REPORT_DIR"
-            npx cypress run --browser "$browser" --spec "${{ inputs.spec_pattern }}" --reporter mochawesome --reporter-options reportDir=$REPORT_DIR || echo "Tests failed for $browser, continuing with next browser"
+            npx cypress run --browser "$browser" --spec "${{ inputs.spec_pattern }}" --reporter mochawesome --reporter-options reportDir=$REPORT_DIR,reportFilename=report-$browser
           done
 
       - name: Test Report
