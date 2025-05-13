@@ -37,10 +37,18 @@ jobs:
 
       - name: Run Cypress Tests Serially
         run: |
+          VALID_BROWSERS=("chrome" "firefox" "edge")
+
           IFS=',' read -ra BROWSER_LIST <<< "${{ inputs.browsers }}"
+
           for browser in "${BROWSER_LIST[@]}"; do
-            echo "Running Cypress tests on $browser"
-            npx cypress run --browser "$browser" --spec "${{ inputs.spec_pattern }}"
+            if [[ " ${VALID_BROWSERS[@]} " =~ " ${browser} " ]]; then
+              echo "Running Cypress tests on $browser"
+              npx cypress run --browser "$browser" --spec "${{ inputs.spec_pattern }}"
+            else
+              echo "Invalid browser: $browser. Please use one of the following: chrome, firefox, edge."
+              exit 1
+            fi
           done
 
       - name: Test Report
