@@ -33,6 +33,11 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v6
 
+      - name: Install Firefox
+        run: |
+          sudo apt update
+          sudo apt install -y firefox
+
       - name: Run Tests
         run: |
           IFS=',' read -ra BROWSER_LIST <<< "${{ inputs.browsers }}"
