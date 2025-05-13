@@ -25,8 +25,6 @@ jobs:
   run-serial:
     if: ${{inputs.run_mode=='serial'}}
     runs-on: ubuntu-24.04
-    strategy:
-      matrix: browser:[${{ inputs.browsers }}]
 
     steps:
       - name: Checkout
@@ -34,13 +32,18 @@ jobs:
 
       - name: Cypress run
         uses: cypress-io/github-action@v6
-        with:
-          browser: ${{ matrix.browser }}
-          spec: ${{ inputs.spec_pattern }}
+
+      - name: Run Tests
+        run: |
+          IFS=',' read -ra BROWSER_LIST <<< "${{ inputs.browsers }}"
+          for browser in "${BROWSER_LIST[@]}"; do
+            echo "Running Cypress tests on $browser"
+            npx cypress run --browser "$browser" --spec "${{ inputs.spec_pattern }}"
+          done
 
       - name: Test Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Chorme Browser Test Report
+          name: Browser Test Report
           path: cypress/reports/html
