@@ -1,48 +1,28 @@
-name: Cypress Tests (Dashboard)
+name: Run Cypress Tests on Dashboard
 
 on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
 
 jobs:
   cypress-run:
     runs-on: ubuntu-latest
 
+    env:
+      CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v3
         with:
           node-version: 20
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Verify Cypress cache
-        run: npx cypress cache list
-
-      - name: Start the React app (in background)
-        run: |
-          npm start &
-        env:
-          CI: false
-
-      - name: Wait for app to be ready
-        uses: jakejarvis/wait-action@v0.1.1
-        with:
-          url: "http://localhost:3000"
-          timeout: 60
-
-      - name: Run Cypress tests on Dashboard
-        uses: cypress-io/github-action@v6
-        with:
-          record: true
-          tag: "github-action"
-          group: "CI"
-        env:
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run Cypress tests and record to Dashboard
+        run: npx cypress run --record --key $CYPRESS_RECORD_KEY
