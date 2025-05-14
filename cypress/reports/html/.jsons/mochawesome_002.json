@@ -1,0 +1,105 @@
+{
+  "stats": {
+    "suites": 1,
+    "tests": 1,
+    "passes": 1,
+    "pending": 0,
+    "failures": 0,
+    "start": "2025-05-14T12:36:57.411Z",
+    "end": "2025-05-14T12:41:17.647Z",
+    "duration": 260236,
+    "testsRegistered": 1,
+    "passPercent": 100,
+    "pendingPercent": 0,
+    "other": 0,
+    "hasOther": false,
+    "skipped": 0,
+    "hasSkipped": false
+  },
+  "results": [
+    {
+      "uuid": "1ba45bcb-1da0-4e8e-8b16-cc4839ecb570",
+      "title": "",
+      "fullFile": "cypress\\e2e\\tests\\currenySymbols.cy.js",
+      "file": "cypress\\e2e\\tests\\currenySymbols.cy.js",
+      "beforeHooks": [],
+      "afterHooks": [],
+      "tests": [],
+      "suites": [
+        {
+          "uuid": "542ed55c-3f63-4b91-b3af-1fba35fb323b",
+          "title": "Set and Verify curreny on HomePage",
+          "fullFile": "",
+          "file": "",
+          "beforeHooks": [],
+          "afterHooks": [],
+          "tests": [
+            {
+              "title": "Correct currency symbol is displayed at all places in HomePage ",
+              "fullTitle": "Set and Verify curreny on HomePage Correct currency symbol is displayed at all places in HomePage ",
+              "timedOut": null,
+              "duration": 45342,
+              "state": "passed",
+              "speed": "slow",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": "[\n  {\n    \"title\": \"cypress-mochawesome-reporter-videos-passed\",\n    \"value\": \"cypress\\\\e2e\\\\tests\\\\currenySymbols.cy.js\"\n  },\n  {\n    \"title\": \"cypress-mochawesome-reporter-screenshots\",\n    \"value\": [\n      [\n        \"\\\\currenySymbols.cy.js\\\\Set and Verify curreny on HomePage -- Correct currency symbol is displayed at all places in HomePage (failed).png\"\n      ],\n      [\n        \"\\\\currenySymbols.cy.js\\\\Set and Verify curreny on HomePage -- Correct currency symbol is displayed at all places in HomePage (failed) (attempt 2).png\"\n      ],\n      []\n    ]\n  }\n]",
+              "code": "cy.visit(\"/\");\n_homePage.default.setCurrencyAndVerifyAppliedCurrency();",
+              "err": {},
+              "uuid": "66e66673-c229-4988-a72c-e5f66e7e0cf1",
+              "parentUUID": "542ed55c-3f63-4b91-b3af-1fba35fb323b",
+              "isHook": false,
+              "skipped": false
+            }
+          ],
+          "suites": [],
+          "passes": [
+            "66e66673-c229-4988-a72c-e5f66e7e0cf1"
+          ],
+          "failures": [],
+          "pending": [],
+          "skipped": [],
+          "duration": 45342,
+          "root": false,
+          "rootEmpty": false,
+          "_timeout": 2000
+        }
+      ],
+      "passes": [],
+      "failures": [],
+      "pending": [],
+      "skipped": [],
+      "duration": 0,
+      "root": true,
+      "rootEmpty": true,
+      "_timeout": 2000
+    }
+  ],
+  "meta": {
+    "mocha": {
+      "version": "7.2.0"
+    },
+    "mochawesome": {
+      "options": {
+        "quiet": false,
+        "reportFilename": "mochawesome",
+        "saveHtml": false,
+        "saveJson": true,
+        "consoleReporter": "spec",
+        "useInlineDiffs": false,
+        "code": true
+      },
+      "version": "7.1.3"
+    },
+    "marge": {
+      "options": {
+        "reportDir": "cypress\\reports\\html\\.jsons",
+        "overwrite": false,
+        "html": false,
+        "json": true
+      },
+      "version": "6.2.0"
+    }
+  }
+}
