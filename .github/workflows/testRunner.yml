@@ -57,15 +57,17 @@ jobs:
 
       - name: Run Cypress Tests Serially
         run: |
+          set -e
           IFS=',' read -ra BROWSER_LIST <<< "${{ inputs.browsers }}"
           for browser in "${BROWSER_LIST[@]}"; do
             echo "Running Cypress tests on $browser"
-            npx cypress run \
+            if ! npx cypress run \
               --browser "$browser" \
               --spec "${{ steps.prepare.outputs.pattern }}" \
               --record \
-              --key ${{ secrets.CYPRESS_RECORD_KEY }} \
-              || echo "Tests failed for $browser, continuing with next browser"
+              --key "${{ secrets.CYPRESS_RECORD_KEY }}"; then
+              echo "Tests failed for $browser, continuing..."
+            fi
           done
 
   set-matrix:
@@ -98,7 +100,7 @@ jobs:
           MATRIX="["
           for browser in $(echo "$BROWSERS" | tr ',' ' '); do
             for i in $(seq 1 "$INSTANCES"); do
-              MATRIX="$MATRIX{\"browser\":\"$browser\",\"instance\":$i},"
+              MATRIX="${MATRIX}{\"browser\":\"$browser\",\"instance\":$i},"
             done
           done
           MATRIX="${MATRIX%,}]"
@@ -120,3 +122,15 @@ jobs:
         run: |
           npm ci
           npx cypress install
+
+      - name: Run Cypress - ${{ matrix.browser }} (Instance ${{ matrix.instance }})
+        run: |
+          echo "Running on ${{ matrix.browser }} - instance ${{ matrix.instance }}"
+          npx cypress run \
+            --browser "${{ matrix.browser }}" \
+            --spec "${{ needs.set-matrix.outputs.pattern }}" \
+            --record \
+            --key "${{ secrets.CYPRESS_RECORD_KEY }}" \
+            --parallel \
+            --ci-build-id "${{ github.run_id }}" \
+            || echo "Tests failed on ${{ matrix.browser }} - instance ${{ matrix.instance }}"
