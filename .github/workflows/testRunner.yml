@@ -22,14 +22,34 @@ on:
         required: false
         default: "1"
 
-      spec_pattern:
-        description: "Test spec pattern (glob)"
+      specs:
+        description: "Comma-separated spec names (e.g., addProductToWishList,loginTest)"
         required: false
-        default: "cypress/e2e/**/*.cy.js"
+        default: ""
 
 jobs:
+  set-spec-pattern:
+    runs-on: ubuntu-24.04
+    outputs:
+      spec_pattern: ${{ steps.convert.outputs.spec_pattern }}
+    steps:
+      - name: Convert short spec names to full paths
+        id: convert
+        run: |
+          if [ -z "${{ inputs.specs }}" ]; then
+            PATTERN="cypress/e2e/**/*.cy.js"
+          else
+            PATTERN=""
+            for name in $(echo "${{ inputs.specs }}" | tr ',' ' '); do
+              PATTERN="${PATTERN}cypress/e2e/tests/${name}.cy.js,"
+            done
+            PATTERN="${PATTERN%,}"  # Remove trailing comma
+          fi
+          echo "spec_pattern=$PATTERN" >> $GITHUB_OUTPUT
+
   run-serial:
     if: ${{ inputs.run_mode == 'serial' }}
+    needs: set-spec-pattern
     runs-on: ubuntu-24.04
 
     steps:
@@ -48,12 +68,15 @@ jobs:
             echo "Running Cypress tests on $browser"
             npx cypress run \
               --browser "$browser" \
-              --spec "${{ inputs.spec_pattern }}" \
+              --spec "${{ needs.set-spec-pattern.outputs.spec_pattern }}" \
+              --record \
+              --key ${{ secrets.CYPRESS_RECORD_KEY }} \
               || echo "Tests failed for $browser, continuing with next browser"
           done
 
   set-matrix:
     if: ${{ inputs.run_mode == 'parallel' }}
+    needs: set-spec-pattern
     runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.set.outputs.matrix }}
@@ -64,19 +87,17 @@ jobs:
           BROWSERS="${{ inputs.browsers }}"
           INSTANCES=${{ inputs.instances }}
           MATRIX="["
-
           for browser in $(echo "$BROWSERS" | tr ',' ' '); do
             for i in $(seq 1 "$INSTANCES"); do
               MATRIX="$MATRIX{\"browser\":\"$browser\",\"instance\":$i},"
             done
           done
-
           MATRIX="${MATRIX%,}]"  # Remove trailing comma
           echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
 
   run-parallel:
     if: ${{ inputs.run_mode == 'parallel' }}
-    needs: set-matrix
+    needs: [set-matrix, set-spec-pattern]
     runs-on: ubuntu-24.04
     strategy:
       matrix:
@@ -96,5 +117,9 @@ jobs:
           echo "Running on ${{ matrix.browser }} - instance ${{ matrix.instance }}"
           npx cypress run \
             --browser "${{ matrix.browser }}" \
-            --spec "${{ inputs.spec_pattern }}" \
+            --spec "${{ needs.set-spec-pattern.outputs.spec_pattern }}" \
+            --record \
+            --key ${{ secrets.CYPRESS_RECORD_KEY }} \
+            --parallel \
+            --ci-build-id "${{ github.run_id }}" \
             || echo "Tests failed on ${{ matrix.browser }} - instance ${{ matrix.instance }}"
