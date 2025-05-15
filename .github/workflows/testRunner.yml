@@ -23,33 +23,13 @@ on:
         default: "1"
 
       specs:
-        description: "Comma-separated spec names (e.g., addProductToWishList,loginTest)"
+        description: "Comma-separated spec names (e.g., addProductToWishList,loginTest) or full glob"
         required: false
-        default: ""
+        default: "cypress/e2e/**/*.cy.js"
 
 jobs:
-  set-spec-pattern:
-    runs-on: ubuntu-24.04
-    outputs:
-      spec_pattern: ${{ steps.convert.outputs.spec_pattern }}
-    steps:
-      - name: Convert short spec names to full paths
-        id: convert
-        run: |
-          if [ -z "${{ inputs.specs }}" ]; then
-            PATTERN="cypress/e2e/**/*.cy.js"
-          else
-            PATTERN=""
-            for name in $(echo "${{ inputs.specs }}" | tr ',' ' '); do
-              PATTERN="${PATTERN}cypress/e2e/tests/${name}.cy.js,"
-            done
-            PATTERN="${PATTERN%,}"  # Remove trailing comma
-          fi
-          echo "spec_pattern=$PATTERN" >> $GITHUB_OUTPUT
-
   run-serial:
     if: ${{ inputs.run_mode == 'serial' }}
-    needs: set-spec-pattern
     runs-on: ubuntu-24.04
 
     steps:
@@ -61,6 +41,20 @@ jobs:
           npm ci
           npx cypress install
 
+      - name: Prepare spec pattern
+        id: prepare
+        run: |
+          if [[ "${{ inputs.specs }}" == cypress/* ]]; then
+            echo "pattern=${{ inputs.specs }}" >> $GITHUB_OUTPUT
+          else
+            PATTERN=""
+            for name in $(echo "${{ inputs.specs }}" | tr ',' ' '); do
+              PATTERN="${PATTERN}cypress/e2e/tests/${name}.cy.js,"
+            done
+            PATTERN="${PATTERN%,}"
+            echo "pattern=$PATTERN" >> $GITHUB_OUTPUT
+          fi
+
       - name: Run Cypress Tests Serially
         run: |
           IFS=',' read -ra BROWSER_LIST <<< "${{ inputs.browsers }}"
@@ -68,7 +62,7 @@ jobs:
             echo "Running Cypress tests on $browser"
             npx cypress run \
               --browser "$browser" \
-              --spec "${{ needs.set-spec-pattern.outputs.spec_pattern }}" \
+              --spec "${{ steps.prepare.outputs.pattern }}" \
               --record \
               --key ${{ secrets.CYPRESS_RECORD_KEY }} \
               || echo "Tests failed for $browser, continuing with next browser"
@@ -76,28 +70,43 @@ jobs:
 
   set-matrix:
     if: ${{ inputs.run_mode == 'parallel' }}
-    needs: set-spec-pattern
     runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.set.outputs.matrix }}
+      pattern: ${{ steps.set.outputs.pattern }}
+
     steps:
-      - name: Set browser-instance matrix
+      - name: Prepare matrix and spec pattern
         id: set
         run: |
           BROWSERS="${{ inputs.browsers }}"
           INSTANCES=${{ inputs.instances }}
+
+          # Handle spec pattern
+          if [[ "${{ inputs.specs }}" == cypress/* ]]; then
+            echo "pattern=${{ inputs.specs }}" >> $GITHUB_OUTPUT
+          else
+            PATTERN=""
+            for name in $(echo "${{ inputs.specs }}" | tr ',' ' '); do
+              PATTERN="${PATTERN}cypress/e2e/tests/${name}.cy.js,"
+            done
+            PATTERN="${PATTERN%,}"
+            echo "pattern=$PATTERN" >> $GITHUB_OUTPUT
+          fi
+
+          # Generate matrix
           MATRIX="["
           for browser in $(echo "$BROWSERS" | tr ',' ' '); do
             for i in $(seq 1 "$INSTANCES"); do
               MATRIX="$MATRIX{\"browser\":\"$browser\",\"instance\":$i},"
             done
           done
-          MATRIX="${MATRIX%,}]"  # Remove trailing comma
+          MATRIX="${MATRIX%,}]"
           echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
 
   run-parallel:
     if: ${{ inputs.run_mode == 'parallel' }}
-    needs: [set-matrix, set-spec-pattern]
+    needs: set-matrix
     runs-on: ubuntu-24.04
     strategy:
       matrix:
@@ -111,15 +120,3 @@ jobs:
         run: |
           npm ci
           npx cypress install
-
-      - name: Run Cypress - ${{ matrix.browser }} (Instance ${{ matrix.instance }})
-        run: |
-          echo "Running on ${{ matrix.browser }} - instance ${{ matrix.instance }}"
-          npx cypress run \
-            --browser "${{ matrix.browser }}" \
-            --spec "${{ needs.set-spec-pattern.outputs.spec_pattern }}" \
-            --record \
-            --key ${{ secrets.CYPRESS_RECORD_KEY }} \
-            --parallel \
-            --ci-build-id "${{ github.run_id }}" \
-            || echo "Tests failed on ${{ matrix.browser }} - instance ${{ matrix.instance }}"
