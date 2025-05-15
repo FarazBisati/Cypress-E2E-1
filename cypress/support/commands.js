@@ -23,6 +23,7 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+
 import Homepage from "../pages/homePage";
 import LoginPage from "../pages/loginPage";
 

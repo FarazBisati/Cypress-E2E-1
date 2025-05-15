@@ -9,6 +9,9 @@ let webLocators = {
     lastRowOfTable: ".table-bordered tr:last-of-type",
     allCells: ".table-bordered>tbody>tr>td:nth-of-type(5)",
   },
+  button: {
+    removeItem: "[onclick*='remove']",
+  },
 };
 function getDate() {
   let currentDate = new Date();
@@ -30,16 +33,9 @@ class WishlistPage {
 
   static removeProductsWithCurrentDate() {
     cy.get("body").then((body) => {
-      if (body.find(webLocators.table.allCells).length > 0) {
-        cy.get(webLocators.table.allCells).each((cell) => {
-          cy.wrap(cell)
-            .invoke("text")
-            .then((text) => {
-              if (text.trim() === getDate()) {
-                cy.wrap(cell).parent().find("td").eq(5).find("a").eq(1).click();
-              }
-            });
-        });
+      if (body.find(webLocators.button.removeItem).length > 0) {
+        cy.get(webLocators.button.removeItem).eq(0).click();
+        WishlistPage.removeProductsWithCurrentDate();
       }
     });
   }

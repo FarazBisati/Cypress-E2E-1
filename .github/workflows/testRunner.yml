@@ -17,13 +17,19 @@ on:
         required: false
         default: "chrome"
 
+      instances:
+        description: "Number of parallel instances per browser"
+        required: false
+        default: "1"
+
       spec_pattern:
         description: "Test spec pattern (glob)"
         required: false
         default: "cypress/e2e/**/*.cy.js"
+
 jobs:
   run-serial:
-    if: ${{inputs.run_mode=='serial'}}
+    if: ${{ inputs.run_mode == 'serial' }}
     runs-on: ubuntu-24.04
 
     steps:
@@ -35,36 +41,60 @@ jobs:
           npm ci
           npx cypress install
 
-      - name: Install Reporting Tools
-        run: |
-          npm install -g mochawesome-merge mochawesome-report-generator
-
       - name: Run Cypress Tests Serially
         run: |
           IFS=',' read -ra BROWSER_LIST <<< "${{ inputs.browsers }}"
           for browser in "${BROWSER_LIST[@]}"; do
             echo "Running Cypress tests on $browser"
-            REPORT_DIR="cypress/reports/html/$browser"
-            mkdir -p "$REPORT_DIR"
             npx cypress run \
               --browser "$browser" \
               --spec "${{ inputs.spec_pattern }}" \
-              --reporter mochawesome \
-              --reporter-options reportDir=$REPORT_DIR,reportFilename=report-$browser.json,overwrite=false,json=true,html=false \
               || echo "Tests failed for $browser, continuing with next browser"
           done
 
-      - name: Upload Reports for Each Browser
+  set-matrix:
+    if: ${{ inputs.run_mode == 'parallel' }}
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.set.outputs.matrix }}
+    steps:
+      - name: Set browser-instance matrix
+        id: set
         run: |
-          IFS=',' read -ra BROWSER_LIST <<< "${{ inputs.browsers }}"
-          for browser in "${BROWSER_LIST[@]}"; do
-            echo "Uploading report for $browser"
-            REPORT_DIR="cypress/reports/html/$browser"
-            zip -r "$REPORT_DIR.zip" "$REPORT_DIR"
+          BROWSERS="${{ inputs.browsers }}"
+          INSTANCES=${{ inputs.instances }}
+          MATRIX="["
+
+          for browser in $(echo "$BROWSERS" | tr ',' ' '); do
+            for i in $(seq 1 "$INSTANCES"); do
+              MATRIX="$MATRIX{\"browser\":\"$browser\",\"instance\":$i},"
+            done
           done
 
-      - name: Upload Final Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: Final Merged Report
-          path: cypress/reports/html
+          MATRIX="${MATRIX%,}]"  # Remove trailing comma
+          echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+
+  run-parallel:
+    if: ${{ inputs.run_mode == 'parallel' }}
+    needs: set-matrix
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        include: ${{ fromJson(needs.set-matrix.outputs.matrix) }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Cypress
+        run: |
+          npm ci
+          npx cypress install
+
+      - name: Run Cypress - ${{ matrix.browser }} (Instance ${{ matrix.instance }})
+        run: |
+          echo "Running on ${{ matrix.browser }} - instance ${{ matrix.instance }}"
+          npx cypress run \
+            --browser "${{ matrix.browser }}" \
+            --spec "${{ inputs.spec_pattern }}" \
+            || echo "Tests failed on ${{ matrix.browser }} - instance ${{ matrix.instance }}"
